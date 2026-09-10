@@ -2,7 +2,7 @@
    HTML: network-first, zodat testers altijd de nieuwste versie zien zodra ze online zijn.
    Assets: cache-first, zodat het spel offline blijft werken (dat is de hele PWA-belofte).
    Bump CACHE bij elke deploy — of laat Vercel dat doen via een build-stap in M2. */
-const CACHE = 'trois-v2';
+const CACHE = 'trois-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
                './icon-180.png', './icon-192.png', './icon-512.png'];
 

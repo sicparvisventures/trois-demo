@@ -38,6 +38,7 @@
   --ink-1:#eef2f5; --ink-2:#9fb0bd; --ink-3:#5d7181;
   --radius-card:11px;
   --cw:clamp(52px,15.5vw,74px);      /* kaartbreedte hand */
+  --ocw:calc(var(--cw)*0.44);        /* kaartbreedte tegenstanders, plat op tafel */
   --ch:calc(var(--cw)*1.4);
   --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
   --ease:cubic-bezier(.2,.8,.2,1);
@@ -117,58 +118,91 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .icon-btn{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;
   background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:15px}
 
-/* ═════════ TEGENSTANDERS ═════════ */
-#opponents{display:flex;justify-content:center;gap:clamp(3px,1.4vw,14px);
-  padding:2px 6px 4px;flex-wrap:nowrap;position:relative;z-index:4}
-.opp{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;
-  padding:6px 6px;border-radius:14px;transition:.28s var(--ease);
-  border:1px solid transparent}
-.opp.active{background:rgba(217,164,65,.11);border-color:rgba(217,164,65,.4);
-  box-shadow:0 0 22px -4px rgba(217,164,65,.35)}
-.opp.done{opacity:.42}
-.opp.skipped{animation:skipStamp .5s var(--ease)}
-@keyframes skipStamp{0%{transform:scale(1)}30%{transform:scale(.9) rotate(-3deg);filter:grayscale(1)}100%{transform:scale(1)}}
-.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
-  font-weight:800;font-size:13px;color:#0b0f14;box-shadow:0 3px 10px rgba(0,0,0,.5)}
-.opp .nm{font-size:10.5px;font-weight:600;color:var(--ink-2);max-width:66px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.opp .cnt{font-size:9.5px;color:var(--ink-3);letter-spacing:.04em}
-.mini-row{display:flex;gap:2px;margin-top:1px}
-.mini{width:13px;height:18px;border-radius:3px;background:#243642;
-  border:1px solid rgba(255,255,255,.09);font-size:8px;font-weight:800;
-  display:grid;place-items:center;line-height:1}
-.mini.up{background:var(--card-face);color:var(--card-ink)}
-.mini.up.red{color:var(--card-red)}
-.mini.down{background:linear-gradient(140deg,#1d3346,#132534);color:rgba(217,164,65,.5)}
-.mini.empty{background:rgba(255,255,255,.05);border-style:dashed;border-color:rgba(255,255,255,.12)}
+/* ═════════ DE TAFEL IN PERSPECTIEF ═════════
+   Eén camerahoek doet het werk: #felt is een vlak dat wegkantelt, en alles wat
+   erop ligt erft die kanteling en ligt dus écht plat op tafel. Geen WebGL nodig.
+   Referentie-analyse: docs/05-visueel-design.md §5.9 */
+#room{flex:1;min-height:0;position:relative;z-index:3;
+  perspective:820px;perspective-origin:50% 24%}
 
-/* ═════════ TAFELMIDDEN ═════════ */
-#table{flex:1;display:flex;align-items:center;justify-content:center;gap:clamp(12px,5vw,34px);
-  position:relative;z-index:3;padding:4px 12px;min-height:0}
-.zone{display:flex;flex-direction:column;align-items:center;gap:6px}
-.zone .lbl{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
-.slot{width:calc(var(--cw)*1.02);height:calc(var(--ch)*1.02);border-radius:var(--radius-card);
-  position:relative}
-.slot.empty{border:1.5px dashed rgba(255,255,255,.14);background:rgba(0,0,0,.16)}
-#stockSlot .back{position:absolute;inset:0}
-.stock-count{position:absolute;inset:auto 0 -1px 0;text-align:center;font-size:16px;
-  font-weight:800;color:var(--brass-300);text-shadow:0 2px 8px #000;pointer-events:none;
-  top:50%;transform:translateY(-50%)}
-#pileZone{position:relative}
-#pileSlot{width:calc(var(--cw)*1.16);height:calc(var(--ch)*1.16)}
-#pileSlot.seven{box-shadow:0 0 0 2px var(--amber),0 0 30px -4px var(--amber);
-  border-radius:var(--radius-card);animation:pulse7 1.5s infinite}
-@keyframes pulse7{0%,100%{box-shadow:0 0 0 2px var(--amber),0 0 24px -6px var(--amber)}
-  50%{box-shadow:0 0 0 2px var(--amber),0 0 40px 0 var(--amber)}}
-#pileSlot.playable{box-shadow:0 0 0 2px var(--mint),0 0 26px -6px var(--mint);border-radius:var(--radius-card)}
-.pile-count{position:absolute;top:-9px;right:-9px;background:var(--felt-800);
-  border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:2px 8px;
-  font-size:11px;font-weight:700;color:var(--ink-1);z-index:9}
-#dirBadge{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-2)}
-#dirBadge .arrow{font-size:24px;transition:transform .5s var(--ease);color:var(--brass-300)}
-#dirBadge.rev .arrow{transform:rotate(180deg) scaleX(-1)}
-#burnZone .flame{font-size:22px;filter:grayscale(1);opacity:.32;transition:.3s}
-#burnZone.hot .flame{filter:none;opacity:1;animation:flick .5s}
+#felt{position:absolute;left:-22%;right:-22%;top:66px;bottom:-125%;
+  transform:rotateX(38deg);transform-origin:50% 20%;transform-style:preserve-3d;
+  background:radial-gradient(52% 42% at 50% 26%,#3f8f75 0%,#2d7059 32%,#22503f 60%,#17352f 100%);
+  border-radius:44% 44% 16% 16%/26% 26% 8% 8%;
+  box-shadow:0 0 0 10px rgba(8,13,17,.92),0 0 0 12px rgba(64,44,20,.55),
+             0 -26px 70px -16px rgba(0,0,0,.9) inset}
+#felt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.05) .5px,transparent .5px);
+  background-size:3px 3px;mix-blend-mode:overlay;opacity:.6}
+
+/* ── stapels met echte dikte: elke laag staat een fractie hoger in Z ──
+   Zo zie je de trekstapel dunner worden. In Trois begint het eindspel als hij
+   op is, dus dat moment moet je zien aankomen. */
+.deck{position:absolute;transform-style:preserve-3d;
+  width:var(--dw,var(--cw));height:calc(var(--dw,var(--cw))*1.4);
+  margin-left:calc(var(--dw,var(--cw))/-2);margin-top:calc(var(--dw,var(--cw))*-0.7)}
+.deck .lay{position:absolute;inset:0;border-radius:var(--radius-card);
+  background:linear-gradient(180deg,#fdfaf2 0%,#efe8d9 55%,#cdc4b1 100%);
+  border:1px solid rgba(132,122,106,.95);
+  border-bottom-color:rgba(96,88,74,.95);
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset}
+.deck>.card{position:absolute;inset:0;width:100%;height:100%;margin:0}
+.deck .cnt{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font-size:calc(var(--cw)*.30);font-weight:800;color:var(--brass-300);
+  text-shadow:0 2px 10px #000;pointer-events:none;z-index:40}
+.deck.empty-slot{border-radius:var(--radius-card);border:1.5px dashed rgba(255,255,255,.16);
+  background:rgba(0,0,0,.2)}
+#pileDeck.seven>.card{box-shadow:0 0 0 2px var(--amber),0 0 28px -2px var(--amber)!important}
+#pileDeck.hot>.card{box-shadow:0 0 0 2px var(--mint),0 0 26px -4px var(--mint)!important}
+.deck-cnt{position:absolute;right:-7px;top:-7px;min-width:22px;height:22px;padding:0 6px;
+  border-radius:11px;background:rgba(8,13,17,.92);border:1px solid rgba(217,164,65,.5);
+  color:var(--brass-300);font-size:11.5px;font-weight:800;display:grid;place-items:center;
+  z-index:50;box-shadow:0 3px 10px rgba(0,0,0,.6)}
+
+/* ── richting: groot en altijd zichtbaar, de 9 draait hem om ── */
+#dirArrow{position:absolute;left:50%;top:21%;transform:translate(-50%,-50%);
+  font-size:38px;color:rgba(240,196,106,.7);transition:transform .5s var(--ease);
+  text-shadow:0 3px 12px rgba(0,0,0,.6);pointer-events:none}
+#dirArrow.rev{transform:translate(-50%,-50%) rotate(180deg) scaleX(-1)}
+
+/* ── kaarten van tegenstanders, plat op tafel ── */
+.opp-group{position:absolute;transform-style:preserve-3d}
+.opp-fan,.opp-tbl{position:absolute;display:flex;transform-style:preserve-3d}
+.ocard{width:var(--ocw);height:calc(var(--ocw)*1.4);border-radius:5px;flex:none;
+  box-shadow:0 3px 9px rgba(0,0,0,.55)}
+.ocard.back{background:repeating-linear-gradient(45deg,rgba(217,164,65,.12) 0 2px,transparent 2px 5px),
+  linear-gradient(150deg,#22405a,#16293a 48%,#101f2c);border:1px solid rgba(217,164,65,.28)}
+.ocard.up{background:linear-gradient(168deg,#fff,#fbfaf7 45%,#f0ece3);border:1px solid #ddd5c6;
+  color:var(--card-ink);display:grid;place-items:center;font-weight:800;
+  font-size:calc(var(--ocw)*.46);line-height:1}
+.ocard.up.red{color:var(--card-red)}
+.ocard.dn{background:linear-gradient(150deg,#1d3346,#132534);border:1px solid rgba(217,164,65,.2)}
+
+/* ── zetels: avatars zweven boven de tafel, niet gekanteld ── */
+#seats{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;justify-content:center;
+  gap:clamp(6px,3vw,22px);padding:2px 8px}
+.seat{display:flex;flex-direction:column;align-items:center;gap:2px;width:72px;
+  transition:.3s var(--ease)}
+.seat .ring{width:50px;height:50px;position:relative;display:grid;place-items:center}
+.seat .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  font-weight:800;font-size:15px;color:#0b0f14;box-shadow:0 4px 12px rgba(0,0,0,.55);
+  transition:.28s var(--ease)}
+.seat.active .av{box-shadow:0 0 0 3px var(--brass-300),0 0 26px -2px var(--brass-400);
+  transform:scale(1.06)}
+.seat.active .nm{color:var(--brass-300)}
+.seat .nm{font-size:10.5px;font-weight:700;color:var(--ink-2);
+  background:rgba(6,10,14,.6);padding:2px 7px;border-radius:7px;max-width:74px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seat .cnt{font-size:9.5px;color:var(--ink-3)}
+.seat.done{opacity:.4}
+.seat.skipped{animation:skipStamp .5s var(--ease)}
+@keyframes skipStamp{0%{transform:scale(1)}30%{transform:scale(.88) rotate(-4deg);filter:grayscale(1)}100%{transform:scale(1)}}
+
+#burnChip{position:absolute;top:6px;right:10px;z-index:6;display:flex;align-items:center;gap:5px;
+  background:rgba(6,10,14,.6);border:1px solid rgba(255,255,255,.1);border-radius:999px;
+  padding:5px 10px;font-size:11px;font-weight:700;color:var(--ink-2)}
+#burnChip .flame{filter:grayscale(1);opacity:.4;transition:.3s}
+#burnChip.hot .flame{filter:none;opacity:1;animation:flick .5s}
 @keyframes flick{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
 
 /* ── kaart ───────────────────────────────────────────────────── */
@@ -222,6 +256,31 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 #hint b{color:var(--brass-300)}
 #hint .warn{color:var(--amber)}
 
+/* ═════════ JOUW BEURT — onmiskenbaar ═════════
+   Drie signalen tegelijk: een gouden rand rond het scherm, je eigen zetel die
+   oplicht, en een balk die zegt wat je moet doen. Eén signaal is te makkelijk
+   te missen op een klein scherm. */
+#turnGlow{position:fixed;inset:0;pointer-events:none;z-index:8;opacity:0;
+  transition:opacity .35s var(--ease);
+  box-shadow:inset 0 0 0 2px rgba(240,196,106,.85), inset 0 0 46px -6px rgba(217,164,65,.55)}
+#app.myturn #turnGlow{opacity:1;animation:glowPulse 2.4s ease-in-out infinite}
+@keyframes glowPulse{0%,100%{opacity:.55}50%{opacity:1}}
+
+#youBar{display:flex;align-items:center;gap:9px;width:100%;max-width:460px;
+  padding:7px 11px;border-radius:14px;border:1px solid var(--line,rgba(255,255,255,.09));
+  background:rgba(255,255,255,.05);transition:.3s var(--ease)}
+#app.myturn #youBar{border-color:rgba(217,164,65,.55);
+  background:linear-gradient(90deg,rgba(217,164,65,.2),rgba(217,164,65,.05));
+  box-shadow:0 0 24px -8px rgba(217,164,65,.7)}
+#youBar .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-weight:800;font-size:14px;color:#0b0f14;flex:none;
+  background:linear-gradient(150deg,var(--brass-300),var(--brass-400))}
+#app.myturn #youBar .av{box-shadow:0 0 0 3px rgba(240,196,106,.9)}
+#youBar .txt{flex:1;min-width:0}
+#youBar .st{display:block;font-size:13.5px;font-weight:800;line-height:1.2;letter-spacing:.02em}
+#app.myturn #youBar .st{color:var(--brass-300)}
+#youBar .sub{display:block;font-size:11px;color:var(--ink-3);margin-top:1px}
+
 /* ═════════ JOUW KANT ═════════ */
 #you{position:relative;z-index:5;padding:0 8px calc(var(--sab) + 10px);
   display:flex;flex-direction:column;align-items:center;gap:9px}
@@ -261,7 +320,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .ember{position:fixed;width:6px;height:6px;border-radius:50%;pointer-events:none;z-index:41;
   background:radial-gradient(circle,#fff,var(--ember) 55%,transparent 72%)}
 
-#toast{position:fixed;left:50%;top:calc(var(--sat) + 152px);transform:translateX(-50%);
+#toast{position:fixed;left:50%;bottom:calc(var(--sab) + 318px);transform:translateX(-50%);
   z-index:50;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none;width:100%}
 .tst{background:rgba(11,15,20,.93);border:1px solid rgba(255,255,255,.14);
   border-radius:999px;padding:7px 16px;font-size:12.5px;font-weight:600;
@@ -270,9 +329,9 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 .tst.burn{border-color:var(--ember);color:var(--ember)}
 .tst.good{border-color:var(--mint);color:var(--mint)}
 .tst.warn{border-color:var(--amber);color:var(--amber)}
-@keyframes tstIn{from{opacity:0;transform:translateY(-10px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes tstIn{from{opacity:0;transform:translateY(10px) scale(.95)}to{opacity:1;transform:none}}
 .tst.out{animation:tstOut .28s var(--ease) forwards}
-@keyframes tstOut{to{opacity:0;transform:translateY(-8px)}}
+@keyframes tstOut{to{opacity:0;transform:translateY(8px)}}
 
 .sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;
   background:rgba(4,7,10,.72);backdrop-filter:blur(6px)}
@@ -292,7 +351,8 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   background:rgba(255,255,255,.08);font-weight:700}
 
 /* ═════════ SWAP ═════════ */
-#game.swapping #table{display:none}
+#game.swapping #room{display:none}
+#game.swapping #youBar{display:none}
 #game.swapping #hint{display:none}
 #game.swapping #you{flex:1;gap:12px}
 #game.swapping #swapUI{flex:1;display:flex;flex-direction:column;justify-content:center}
@@ -371,29 +431,25 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
       <button class="icon-btn" id="btnInfo">?</button>
     </header>
 
-    <div id="opponents"></div>
-
-    <div id="table">
-      <div class="zone" id="stockZone">
-        <div class="slot" id="stockSlot"></div>
-        <span class="lbl">trekstapel</span>
+    <div id="room">
+      <div id="felt">
+        <div id="oppLayer"></div>
+        <div id="dirArrow">↻</div>
+        <div class="deck" id="stockDeck"></div>
+        <div class="deck" id="pileDeck"></div>
       </div>
-      <div class="zone" id="pileZone">
-        <div class="slot" id="pileSlot"></div>
-        <span class="lbl" id="pileLbl">aflegstapel</span>
-      </div>
-      <div class="zone" id="burnZone">
-        <div style="height:calc(var(--ch)*.6);display:grid;place-items:center">
-          <span class="flame">🔥</span></div>
-        <span class="lbl"><span id="burnCount">0</span> verbrand</span>
-        <div id="dirBadge"><span class="arrow">↻</span></div>
-      </div>
+      <div id="seats"></div>
+      <div id="burnChip"><span class="flame">🔥</span><span id="burnCount">0</span></div>
     </div>
 
     <div id="hint"></div>
 
     <div id="you">
       <div id="swapUI" hidden></div>
+      <div id="youBar">
+        <span class="av" id="youAv">J</span>
+        <span class="txt"><span class="st" id="youSt">—</span><span class="sub" id="youSub"></span></span>
+      </div>
       <div id="myTable"></div>
       <div id="handWrap"><div id="hand"></div></div>
       <div id="actions">
@@ -404,6 +460,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
   </section>
 
   <div id="burnFx"></div>
+  <div id="turnGlow"></div>
 </div>
 
 <div id="toast"></div>
@@ -1021,10 +1078,10 @@ const BOT = (() => {
   function burnFx(){
     const fx = $('#burnFx'); fx.classList.remove('go'); void fx.offsetWidth; fx.classList.add('go');
     const app = $('#app'); app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
-    $('#burnZone').classList.add('hot');
-    setTimeout(() => $('#burnZone').classList.remove('hot'), 700);
+    $('#burnChip').classList.add('hot');
+    setTimeout(() => $('#burnChip').classList.remove('hot'), 700);
     vibrate([30,40,60]);
-    const r = $('#pileSlot').getBoundingClientRect();
+    const r = $('#pileDeck').getBoundingClientRect();
     const cx = r.left + r.width/2, cy = r.top + r.height/2;
     for (let i = 0; i < 18; i++){
       const e = document.createElement('div');
@@ -1050,77 +1107,158 @@ const BOT = (() => {
     renderActions();
   }
 
-  function renderOpponents(){
-    const box = $('#opponents');
+  /* ── zetelposities op het vilt, per aantal tegenstanders ─────────────
+     x/y in procenten van #felt, plus de rotatie waaronder hun kaarten liggen. */
+  const SEATPOS = {
+    1: [ {x:50, y:15, r:180} ],
+    2: [ {x:35, y:16, r:165}, {x:65, y:16, r:195} ],
+    3: [ {x:29, y:18, r:150}, {x:50, y:13, r:180}, {x:71, y:18, r:210} ],
+  };
+
+  function renderSeats(){
+    const box = $('#seats');
     box.innerHTML = '';
     for (const p of G.players){
       if (p.seat === ME) continue;
-      const d = document.createElement('div');
-      d.className = 'opp' + (G.phase === 'playing' && G.current === p.seat ? ' active' : '')
-                          + (p.place !== null ? ' done' : '');
-      d.dataset.seat = p.seat;
       const total = p.hand.length + p.faceUp.length + p.faceDown.length;
-      const mini = [];
-      for (const c of p.faceUp)
-        mini.push(`<span class="mini up${ENGINE.isRed(c)?' red':''}">${ENGINE.label(c.rank)}${ENGINE.SUIT_CHAR[c.suit]}</span>`);
-      for (let i = 0; i < p.faceDown.length; i++) mini.push('<span class="mini down">3</span>');
-      if (!mini.length && p.place === null) mini.push('<span class="mini empty"></span>');
+      const active = G.phase === 'playing' && G.current === p.seat;
+      const d = document.createElement('div');
+      d.className = 'seat' + (active ? ' active' : '') + (p.place !== null ? ' done' : '');
+      d.dataset.seat = p.seat;
       d.innerHTML =
-        `<div class="avatar" style="background:${AVATARS[p.seat]}">${p.name[0]}</div>` +
+        `<div class="ring"><div class="av" style="background:${AVATARS[p.seat]}">${p.name[0]}</div></div>` +
         `<div class="nm">${p.name}</div>` +
-        `<div class="cnt">${p.place !== null ? '#' + p.place + ' klaar' : '✋ ' + p.hand.length + ' · ' + total + ' totaal'}</div>` +
-        `<div class="mini-row">${mini.join('')}</div>`;
+        `<div class="cnt">${p.place !== null ? '#' + p.place + ' klaar' : '✋ ' + p.hand.length + ' · ' + total}</div>`;
       box.appendChild(d);
     }
   }
 
-  function renderCentre(){
-    // trekstapel
-    const ss = $('#stockSlot');
-    ss.innerHTML = '';
-    if (G.stock.length){
-      ss.className = 'slot';
-      const b = backEl(); b.style.position = 'absolute'; b.style.inset = '0'; b.style.width = 'auto'; b.style.height = 'auto';
-      ss.appendChild(b);
-      const n = document.createElement('span');
-      n.className = 'stock-count'; n.textContent = G.stock.length;
-      ss.appendChild(n);
-    } else {
-      ss.className = 'slot empty';
-    }
+  /* ── de kaarten van tegenstanders liggen plat op het vilt ─────────────
+     Een waaier ruggen voor hun hand, hun tafelkaarten ervoor. Je ziet aan de
+     breedte van de waaier wie veel kaarten heeft, zonder een getal te lezen. */
+  function renderOppCards(){
+    const layer = $('#oppLayer');
+    layer.innerHTML = '';
+    const opps = G.players.filter(p => p.seat !== ME);
+    const pos = SEATPOS[opps.length] || SEATPOS[3];
 
-    // aflegstapel — bovenste 4 kaarten met lichte rotatie
-    const ps = $('#pileSlot');
-    ps.innerHTML = '';
-    ps.className = 'slot' + (G.pile.length ? '' : ' empty')
-                 + (G.sevenActive ? ' seven' : '');
-    const shown = G.pile.slice(-4);
-    shown.forEach((c, i) => {
-      const el = cardEl(c);
-      el.classList.add('pile-card');
-      const seedRot = ((c.rank * 7 + c.suit.charCodeAt(0)) % 13) - 6;
-      el.style.transform = `rotate(${i === shown.length-1 ? seedRot*0.6 : seedRot}deg) translateY(${(shown.length-1-i)*-1.5}px)`;
-      el.style.zIndex = i;
-      if (i === shown.length - 1) el.classList.add('fly');
-      ps.appendChild(el);
+    opps.forEach((p, i) => {
+      const s = pos[i]; if (!s) return;
+      const g = document.createElement('div');
+      g.className = 'opp-group';
+      g.style.left = s.x + '%';
+      g.style.top  = s.y + '%';
+      g.style.transform = `translate(-50%,-50%) rotate(${s.r}deg)`;
+
+      // handkaarten als waaier ruggen (max 7 getekend)
+      const n = Math.min(p.hand.length, 7);
+      const fan = document.createElement('div');
+      fan.className = 'opp-fan';
+      fan.style.cssText = 'left:50%;top:0;transform:translateX(-50%)';
+      for (let k = 0; k < n; k++){
+        const c = document.createElement('div');
+        c.className = 'ocard back';
+        const a = (k - (n-1)/2) * 11;
+        c.style.transform = `rotate(${a}deg) translateY(${Math.abs(a)*0.3}px)`;
+        c.style.marginLeft = k ? 'calc(var(--ocw) * -0.55)' : '0';
+        fan.appendChild(c);
+      }
+      g.appendChild(fan);
+
+      // tafelkaarten: dichte kaart met de open kaart erbovenop
+      const tbl = document.createElement('div');
+      tbl.className = 'opp-tbl';
+      tbl.style.cssText = 'left:50%;top:calc(var(--ocw) * 1.5);transform:translateX(-50%);gap:3px';
+      for (let k = 0; k < 3; k++){
+        const fd = p.faceDown[k], fu = p.faceUp[k];
+        if (!fd && !fu) continue;
+        const st = document.createElement('div');
+        st.style.cssText = 'position:relative;width:var(--ocw);height:calc(var(--ocw)*1.4)';
+        if (fd){
+          const b = document.createElement('div');
+          b.className = 'ocard dn';
+          b.style.cssText = 'position:absolute;inset:0;transform:translate(2px,2px)';
+          st.appendChild(b);
+        }
+        if (fu){
+          const u = document.createElement('div');
+          u.className = 'ocard up' + (ENGINE.isRed(fu) ? ' red' : '');
+          u.style.cssText = 'position:absolute;inset:0';
+          // de kaart ligt gedraaid op tafel, maar de waarde blijft rechtop:
+          // ondersteboven cijfers lezen is een echte kost op een klein scherm
+          const t = document.createElement('span');
+          t.style.transform = `rotate(${-s.r}deg)`;
+          t.style.display = 'block';
+          t.textContent = ENGINE.label(fu.rank) + ENGINE.SUIT_CHAR[fu.suit];
+          u.appendChild(t);
+          st.appendChild(u);
+        }
+        tbl.appendChild(st);
+      }
+      g.appendChild(tbl);
+      layer.appendChild(g);
     });
-    if (G.pile.length > 1){
-      const c = document.createElement('span');
-      c.className = 'pile-count'; c.textContent = G.pile.length;
-      ps.appendChild(c);
-    }
-    // label: waar speel je eigenlijk tegenaan? (R-22)
-    const top = ENGINE.effectiveTop(G.pile);
-    const rawTop = G.pile[G.pile.length-1];
-    let lbl = 'aflegstapel';
-    if (!G.pile.length) lbl = 'leeg — alles mag';
-    else if (rawTop && rawTop.rank === 3) lbl = top ? `3 telt niet — geldt: ${ENGINE.cardName(top)}` : '3 op leeg — alles mag';
-    else if (G.sevenActive) lbl = 'nu 7 of lager';
-    $('#pileLbl').textContent = lbl;
-
-    $('#burnCount').textContent = G.burned.length;
-    $('#dirBadge').classList.toggle('rev', G.direction === -1);
   }
+
+  /* ── stapel met echte dikte: elke laag staat een fractie hoger in Z ── */
+  function buildDeck(node, count, topCard, opts = {}){
+    node.innerHTML = '';
+    node.className = 'deck' + (opts.cls ? ' ' + opts.cls : '');
+    node.style.setProperty('--dw', opts.wide ? 'calc(var(--cw) * 1.18)' : 'var(--cw)');
+    node.style.left = opts.x; node.style.top = opts.y;
+    if (!count && !topCard){ node.classList.add('empty-slot'); return; }
+    // Alleen Z: een Y-offset werkt de projectie van Z precies tegen (gemeten:
+    // 1,4 px totale dikte). Puur in Z stapelen geeft ~1,2 px per kaart op het
+    // scherm. Bewust overdreven t.o.v. echte kaarten — 40 kaarten zijn in het
+    // echt maar 5% van de kaarthoogte, en dat zie je op een telefoon niet.
+    const layers = Math.min(count, 20);
+    const step = 2.0;
+    for (let i = 0; i < layers; i++){
+      const l = document.createElement('i');
+      l.className = 'lay';
+      l.style.transform = `translateZ(${i * step}px)`;
+      node.appendChild(l);
+    }
+    if (topCard){
+      topCard.style.transform = `translateZ(${layers * step}px)`;
+      node.appendChild(topCard);
+    }
+    if (opts.count != null){
+      const c = document.createElement('span');
+      c.className = 'deck-cnt';
+      c.style.transform = `translateZ(${(layers + 2) * step}px)`;
+      c.textContent = opts.count;
+      node.appendChild(c);
+    }
+  }
+
+  function renderCentre(){
+    // trekstapel — je ziet hem dunner worden, en dat is het startschot van het eindspel
+    const back = G.stock.length ? backEl() : null;
+    if (back){ back.style.position = 'absolute'; back.style.inset = '0';
+               back.style.width = '100%'; back.style.height = '100%'; }
+    buildDeck($('#stockDeck'), G.stock.length, back,
+              { x:'40%', y:'28%', count: G.stock.length || null });
+
+    // aflegstapel — hoe hoger, hoe erger het is om hem te moeten pakken
+    const top = G.pile[G.pile.length - 1];
+    const topEl = top ? cardEl(top) : null;
+    if (topEl){
+      const seedRot = ((top.rank * 7 + top.suit.charCodeAt(0)) % 11) - 5;
+      topEl.classList.add('fly');
+      topEl.dataset.rot = seedRot;
+    }
+    buildDeck($('#pileDeck'), G.pile.length, topEl,
+              { x:'60%', y:'28%', wide:true,
+                count: G.pile.length > 1 ? G.pile.length : null,
+                cls: G.sevenActive ? 'seven' : '' });
+    if (topEl) topEl.style.transform += ` rotate(${topEl.dataset.rot}deg)`;
+
+    $('#dirArrow').classList.toggle('rev', G.direction === -1);
+    $('#burnCount').textContent = G.burned.length;
+  }
+
+  function renderOpponents(){ renderSeats(); renderOppCards(); }
 
   function renderMine(){
     const me = G.players[ME];
@@ -1133,6 +1271,7 @@ const BOT = (() => {
 
     const zone = ENGINE.activeZone(me);
     const myTurn = G.phase === 'playing' && G.current === ME && !busy;
+    renderYouBar(me, zone, myTurn);
 
     /* tafelkaarten */
     const mt = $('#myTable');
@@ -1197,6 +1336,31 @@ const BOT = (() => {
     });
   }
 
+  /* ── wiens beurt is het? Drie signalen tegelijk (zie #turnGlow in de CSS) ── */
+  let wasMyTurn = false;
+  function renderYouBar(me, zone, myTurn){
+    $('#app').classList.toggle('myturn', myTurn);
+    if (myTurn && !wasMyTurn) vibrate([14, 60, 14]);   // je voelt dat je aan zet bent
+    wasMyTurn = myTurn;
+
+    $('#youAv').textContent = me.name[0];
+    const total = me.hand.length + me.faceUp.length + me.faceDown.length;
+    const st = $('#youSt'), sub = $('#youSub');
+    if (G.phase === 'finished' || me.place !== null){
+      st.textContent = me.place === 1 ? 'Gewonnen' : 'Plaats ' + me.place;
+      sub.textContent = '';
+    } else if (myTurn){
+      st.textContent = 'JOUW BEURT';
+      sub.textContent = zone === 'faceDown' ? 'draai een blinde kaart om'
+                      : zone === 'faceUp'   ? 'speel je open tafelkaarten'
+                      : 'kies een kaart en speel';
+    } else {
+      const cur = G.players[G.current];
+      st.textContent = cur ? cur.name + ' is aan zet' : '—';
+      sub.textContent = '✋ ' + me.hand.length + ' in de hand · ' + total + ' totaal';
+    }
+  }
+
   /* ── SWAP-fase (R-05) ────────────────────────────────────────────────── */
   let swapSel = new Set();
   function renderSwap(){
@@ -1241,8 +1405,15 @@ const BOT = (() => {
     if (!legal.size){ h.innerHTML = '<span class="warn">Niets speelbaar — je moet de stapel pakken.</span>'; return; }
     if (G.sevenActive){ h.innerHTML = '<span class="warn">Na een 7:</span> speel <b>7 of lager</b> (of 2, 3, 10).'; return; }
     const top = ENGINE.effectiveTop(G.pile);
-    h.innerHTML = top ? `Leg <b>${ENGINE.label(top.rank)}</b> of hoger — of een 2, 3 of 10.`
-                      : 'De stapel is leeg — <b>alles mag</b>.';
+    const raw = G.pile[G.pile.length - 1];
+    const via3 = raw && raw.rank === 3;
+    if (!top){
+      h.innerHTML = via3 ? 'Een <b>3</b> op een lege stapel — <b>alles mag</b>.'
+                         : 'De stapel is leeg — <b>alles mag</b>.';
+    } else {
+      h.innerHTML = (via3 ? '<b>3</b> is onzichtbaar: ' : '')
+                  + `leg <b>${ENGINE.label(top.rank)}</b> of hoger — of een 2, 3 of 10.`;
+    }
   }
 
   function renderActions(){
@@ -1261,7 +1432,7 @@ const BOT = (() => {
     play.disabled = !myTurn || sel.size === 0;
     take.disabled = !myTurn || !G.pile.length || zone === 'faceDown';
     take.classList.toggle('urgent', myTurn && zone !== 'faceDown' && legal.size === 0);
-    $('#pileSlot').classList.toggle('playable', myTurn && sel.size > 0);
+    $('#pileDeck').classList.toggle('hot', myTurn && sel.size > 0);
   }
 
   /* ── interactie ──────────────────────────────────────────────────────── */
@@ -1311,7 +1482,7 @@ const BOT = (() => {
         case 'skipped':
           for (const s of e.seats){
             toast(`⏭ ${G.players[s].name} slaat over`, 'warn');
-            const el = document.querySelector(`.opp[data-seat="${s}"]`);
+            const el = document.querySelector(`.seat[data-seat="${s}"]`);
             if (el){ el.classList.remove('skipped'); void el.offsetWidth; el.classList.add('skipped'); }
           }
           break;
@@ -1420,7 +1591,7 @@ const BOT = (() => {
     }
     playSelection();
   };
-  $('#pileSlot').onclick = () => { if (sel.size) playSelection(); };
+  $('#pileDeck').onclick = () => { if (sel.size) playSelection(); };
 
   // dubbel-tap op een handkaart = meteen spelen
   let lastTap = 0;

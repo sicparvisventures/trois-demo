@@ -844,18 +844,19 @@ function openProfile(){
     </div>
     <div class="sec">Account</div>
     <div class="card-box"><div class="row">
-      <span style="font-size:19px">🔐</span>
-      <div class="grow"><div class="t1">Beveilig je account</div>
-        <div class="t2">Zonder koppeling ben je alles kwijt als je de app verwijdert.</div></div>
+      <span style="font-size:19px">📋</span>
+      <div class="grow"><div class="t1">Herstelcode</div>
+        <div class="t2">Geen inlog nodig. Bewaar deze code en je haalt je profiel terug
+          op een nieuw toestel.</div></div>
     </div>
-    <button class="btn ghost sm" style="margin-top:11px" id="pLink">Koppel Apple of Google</button></div>
+    <button class="btn ghost sm" style="margin-top:11px" id="pLink">Toon herstelcode</button></div>
     <button class="btn ghost sm" id="pName">Naam en avatar wijzigen</button>
     <button class="btn ghost sm" style="margin-top:9px" id="pShare">Nodig een vriend uit voor Trois</button>
-    <div class="anno"><b>S-50.</b> De waarschuwing over je anonieme account staat er eerlijk,
-      maar verschijnt pas <b>ná je eerste gewonnen potje</b> — daarvóór heeft ze geen
-      betekenis voor de speler. Delen zit hier, niet op de startknop.</div>`,
+    <div class="anno"><b>S-50.</b> Geen Apple- of Google-koppeling en geen store-distributie
+      — allebei geschrapt. Consequentie: je account leeft op dít toestel. Een herstelcode
+      vangt dat op zonder ook maar iets van een inlog. Delen zit hier, niet op de startknop.</div>`,
   (sh, close) => {
-    sh.querySelector('#pLink').onclick  = () => toast('In de echte app: linkIdentity()','gold');
+    sh.querySelector('#pLink').onclick  = () => toast('Nog niet gebouwd — zie Q38','gold');
     sh.querySelector('#pName').onclick  = () => { me.name = genName(); me.seed = 'me-'+Math.random();
       paintHeader(); close(); toast('Naam gewijzigd','good'); };
     sh.querySelector('#pShare').onclick = () => { close(); go('mates'); setTimeout(()=>$('#mShare').click(),80); };
@@ -883,9 +884,9 @@ function openTable(which){
       <button class="icon-btn" id="tvInfo">?</button>
     </div>
     <div class="tv-opps" id="tvOpps"></div>
-    <div class="tv-anno"><b>S-24 · nieuw t.o.v. solo:</b>
-      echte avatars · turn-timer rond wie aan zet is · verbindingsstatus · emotes.
-      De tafel zelf is ongewijzigd.</div>
+    <div class="tv-anno"><b>S-24 · schema.</b> De échte tafel staat inmiddels in perspectief
+      in de demo. Nieuw t.o.v. solo: echte avatars · turn-timer rond wie aan zet is ·
+      verbindingsstatus · emotes.</div>
     <div class="tv-mid">
       <div><div class="mini-card back">3</div><div class="tv-lbl">11</div></div>
       <div><div class="mini-card red">9<div style="font-size:12px">♦</div></div><div class="tv-lbl">aflegstapel</div></div>
