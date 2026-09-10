@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0b0f14">
+<title>Trois — app-mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   TROIS — app-mockup. Klikbaar prototype met nepdata.
+   Schermen verwijzen naar docs/11-schermen-en-flows.md (S-xx).
+   Ontwerptokens gelijk aan de bestaande demo.
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --felt-900:#0b0f14; --felt-800:#101820; --felt-700:#16222c;
+  --felt-600:#1c3a34; --felt-500:#235148;
+  --brass-400:#d9a441; --brass-300:#f0c46a;
+  --ember:#ff6a3d; --mint:#57e0a8; --violet:#8b6cff; --amber:#ffb03a; --sky:#4aa3ff;
+  --card-face:#fbfaf7; --card-ink:#14181d; --card-red:#d1372f;
+  --ink-1:#eef2f5; --ink-2:#9fb0bd; --ink-3:#5d7181; --ink-4:#3b4c59;
+  --line:rgba(255,255,255,.09);
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overscroll-behavior:none}
+body{font-family:Archivo,ui-sans-serif,system-ui,-apple-system,sans-serif;
+  background:var(--felt-900);color:var(--ink-1);overflow:hidden;
+  user-select:none;-webkit-user-select:none;font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
+input{font:inherit}
+[hidden]{display:none!important}
+
+#app{position:fixed;inset:0;display:flex;flex-direction:column;
+  background:radial-gradient(120% 55% at 50% 0%,#1b3a33 0%,#12222b 46%,#0b0f14 100%)}
+
+/* ─── header ─────────────────────────────────────────────────── */
+#hdr{display:flex;align-items:center;gap:11px;padding:calc(var(--sat) + 12px) 15px 11px;
+  border-bottom:1px solid var(--line);flex:none}
+#hdr .who{flex:1;min-width:0}
+#hdr .nm{font-weight:700;font-size:15px;line-height:1.15}
+#hdr .id{font-size:11px;color:var(--ink-3);letter-spacing:.09em;margin-top:2px}
+.avatar{width:40px;height:40px;border-radius:13px;flex:none;display:grid;place-items:center;
+  font-size:19px;box-shadow:0 4px 12px rgba(0,0,0,.45);position:relative}
+.avatar.sm{width:32px;height:32px;border-radius:10px;font-size:15px}
+.avatar.xs{width:24px;height:24px;border-radius:8px;font-size:11px}
+.avatar.lg{width:88px;height:88px;border-radius:26px;font-size:40px}
+.avatar .dot{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;
+  border:2px solid var(--felt-900);background:var(--ink-4)}
+.avatar .dot.on{background:var(--mint)}
+.rankchip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:10px;
+  background:linear-gradient(180deg,rgba(240,196,106,.2),rgba(217,164,65,.08));
+  border:1px solid rgba(217,164,65,.34);font-weight:800;font-size:13px;color:var(--brass-300);flex:none}
+.rankchip small{font-weight:600;font-size:10.5px;color:var(--ink-2);letter-spacing:.05em}
+
+/* ─── viewport & tabs ────────────────────────────────────────── */
+#view{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:16px 15px 22px;
+  -webkit-overflow-scrolling:touch}
+#view::-webkit-scrollbar{display:none}
+#tabs{display:flex;border-top:1px solid var(--line);background:rgba(8,12,16,.82);
+  backdrop-filter:blur(16px);padding-bottom:var(--sab);flex:none}
+#tabs button{flex:1;padding:10px 0 9px;display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:var(--ink-3);position:relative;transition:color .2s var(--ease)}
+#tabs button .ic{font-size:19px;line-height:1}
+#tabs button .lb{font-size:9.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase}
+#tabs button[aria-selected=true]{color:var(--brass-300)}
+#tabs button[aria-selected=true]::before{content:"";position:absolute;top:0;left:22%;right:22%;
+  height:2px;background:var(--brass-300);border-radius:0 0 3px 3px}
+.badge{position:absolute;top:5px;right:calc(50% - 22px);min-width:17px;height:17px;padding:0 5px;
+  border-radius:9px;background:var(--ember);color:#180800;font-size:10px;font-weight:800;
+  display:grid;place-items:center;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+
+/* ─── bouwstenen ─────────────────────────────────────────────── */
+.sec{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:700;margin:22px 2px 9px}
+.sec:first-child{margin-top:2px}
+.card-box{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:16px;
+  padding:13px;margin-bottom:9px;transition:.16s var(--ease)}
+.card-box.tap:active{transform:scale(.985);background:rgba(255,255,255,.07)}
+.row{display:flex;align-items:center;gap:11px}
+/* .grow moet overal werken, niet alleen binnen .row — en t1/t2 zijn regels,
+   ook wanneer ze als <span> gebruikt worden (in .pick en .lb-row). */
+.grow{flex:1;min-width:0}
+.t1{display:block;font-weight:700;font-size:14.5px;line-height:1.25}
+.t2{display:block;font-size:12px;color:var(--ink-2);margin-top:2px;line-height:1.35}
+.t3{font-size:11px;color:var(--ink-3)}
+.btn{display:block;width:100%;padding:15px;border-radius:14px;font-weight:800;font-size:15px;
+  letter-spacing:.03em;text-align:center;transition:transform .12s var(--ease)}
+.btn:active{transform:scale(.975)}
+.btn.gold{background:linear-gradient(180deg,var(--brass-300),var(--brass-400));color:#1c1206;
+  box-shadow:0 10px 26px -10px rgba(217,164,65,.65)}
+.btn.mint{background:linear-gradient(180deg,var(--mint),#2fb984);color:#052018}
+.btn.ghost{border:1px solid var(--line);color:var(--ink-1);background:rgba(255,255,255,.05)}
+.btn.sm{padding:11px;font-size:13.5px;border-radius:12px}
+.pill{padding:6px 11px;border-radius:999px;font-size:11px;font-weight:700;flex:none}
+.pill.turn{background:rgba(87,224,168,.16);color:var(--mint);border:1px solid rgba(87,224,168,.4)}
+.pill.wait{background:rgba(255,255,255,.06);color:var(--ink-3)}
+.pill.new{background:rgba(255,106,61,.18);color:var(--ember);border:1px solid rgba(255,106,61,.4)}
+.icon-btn{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none;
+  background:rgba(255,255,255,.07);border:1px solid var(--line);font-size:15px}
+.stack-av{display:flex}
+.stack-av .avatar{margin-left:-9px;border:2px solid var(--felt-900)}
+.stack-av .avatar:first-child{margin-left:0}
+.empty{text-align:center;padding:30px 18px;color:var(--ink-3)}
+.empty .big{font-size:34px;margin-bottom:10px;opacity:.5}
+.empty p{font-size:13px;line-height:1.55;margin:0 0 15px}
+.note{font-size:11.5px;color:var(--ink-3);line-height:1.5;margin:9px 2px 0}
+.note b{color:var(--ink-2)}
+
+/* ─── timer-ring ─────────────────────────────────────────────── */
+.ring{position:relative;flex:none}
+.ring svg{position:absolute;inset:-4px;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:2.5}
+.ring .bg{stroke:rgba(255,255,255,.1)}
+.ring .fg{stroke:var(--mint);stroke-linecap:round;transition:stroke-dashoffset 1s linear}
+.ring.low .fg{stroke:var(--ember)}
+
+/* ─── modal ──────────────────────────────────────────────────── */
+.sheet{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;
+  background:rgba(4,7,10,.76);backdrop-filter:blur(7px)}
+.sheet-in{width:100%;max-height:88vh;overflow-y:auto;background:var(--felt-800);
+  border-radius:24px 24px 0 0;border-top:1px solid var(--line);
+  padding:9px 18px calc(var(--sab) + 20px);animation:up .32s var(--ease)}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.grip{width:38px;height:4px;border-radius:3px;background:rgba(255,255,255,.18);margin:0 auto 15px}
+.sheet h2{margin:0 0 4px;font-size:20px;font-weight:800}
+.sheet .sub{font-size:13px;color:var(--ink-2);margin:0 0 17px;line-height:1.5}
+.steps{display:flex;gap:6px;margin-bottom:16px}
+.steps i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.12)}
+.steps i.on{background:var(--brass-400)}
+.seg{display:flex;gap:6px;background:rgba(0,0,0,.3);padding:5px;border-radius:13px}
+.seg button{flex:1;padding:12px 0;border-radius:9px;font-weight:700;font-size:14px;
+  color:var(--ink-2);text-align:center;transition:.16s var(--ease)}
+.seg button[aria-pressed=true]{background:linear-gradient(180deg,var(--brass-300),var(--brass-400));color:#20160a}
+.seg.sm button{padding:9px 0;font-size:12.5px}
+.field{margin-bottom:15px}
+.field>label{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:700;margin-bottom:8px}
+.pick{display:flex;align-items:center;gap:11px;padding:11px;border-radius:13px;
+  border:1px solid var(--line);background:rgba(255,255,255,.035);margin-bottom:7px;width:100%}
+.pick[aria-pressed=true]{border-color:rgba(217,164,65,.5);background:rgba(217,164,65,.11)}
+.pick .chk{width:22px;height:22px;border-radius:7px;border:1.5px solid var(--ink-4);flex:none;
+  display:grid;place-items:center;font-size:12px;color:transparent}
+.pick[aria-pressed=true] .chk{background:var(--brass-400);border-color:var(--brass-400);color:#1c1206}
+.pick.off{opacity:.55}
+.inp{width:100%;padding:14px;border-radius:13px;background:rgba(0,0,0,.32);
+  border:1px solid var(--line);color:var(--ink-1);font-size:16px;letter-spacing:.14em;
+  font-weight:700;text-transform:uppercase;text-align:center}
+.inp::placeholder{letter-spacing:.06em;font-weight:500;color:var(--ink-4);text-transform:none}
+
+/* ─── onboarding ─────────────────────────────────────────────── */
+#onboard{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:26px;text-align:center;
+  background:radial-gradient(120% 60% at 50% 22%,#2a5a4f 0%,#1c3a34 34%,#12222b 62%,#0b0f14 100%)}
+#onboard .logo{font-size:clamp(40px,13vw,64px);font-weight:800;letter-spacing:.17em;margin:0 0 6px;
+  background:linear-gradient(180deg,#fff,var(--brass-300) 46%,#a8762a);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+#onboard .lead{color:var(--ink-2);font-size:13.5px;margin:0 0 30px;letter-spacing:.02em}
+.idcard{width:min(340px,90vw);background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:22px;padding:26px 20px 20px;backdrop-filter:blur(14px);
+  box-shadow:0 26px 60px -22px #000}
+.idcard .nm{font-size:23px;font-weight:800;margin:15px 0 3px}
+.idcard .tid{font-size:12.5px;letter-spacing:.2em;color:var(--brass-300);font-weight:700}
+.idcard .hint{font-size:11.5px;color:var(--ink-3);margin-top:15px;line-height:1.5}
+.roll{margin:17px 0 11px;display:inline-flex;align-items:center;gap:8px;padding:10px 17px;
+  border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.055);
+  font-size:13px;font-weight:700}
+.roll:active{transform:scale(.96)}
+@keyframes pop{0%{transform:scale(.86);opacity:0}100%{transform:none;opacity:1}}
+.pop{animation:pop .3s var(--ease)}
+
+/* ─── tafel (S-24) ───────────────────────────────────────────── */
+#table-view{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;
+  background:radial-gradient(120% 62% at 50% 30%,#2a5a4f 0%,#1c3a34 34%,#12222b 62%,#0b0f14 100%)}
+#table-view::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(105% 68% at 50% 34%,transparent 40%,rgba(0,0,0,.62) 100%)}
+.tv-hd{display:flex;align-items:center;gap:10px;padding:calc(var(--sat) + 10px) 14px 8px;
+  position:relative;z-index:3}
+.tv-opps{display:flex;justify-content:center;gap:16px;padding:6px 10px 2px;position:relative;z-index:3}
+.tv-opp{display:flex;flex-direction:column;align-items:center;gap:4px;width:78px}
+.tv-opp .nm{font-size:10.5px;font-weight:700;color:var(--ink-2);max-width:76px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.tv-opp .cnt{font-size:9.5px;color:var(--ink-3)}
+.tv-opp.gone{opacity:.45}
+/* ring rond de avatar van wie aan zet is — eigen maat, anders valt hij weg */
+.ring.av{position:relative;width:52px;height:52px;display:grid;place-items:center}
+.ring.av svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring.av .avatar{width:40px;height:40px;border-radius:13px}
+.tv-anno{margin:4px 12px 0;border:1px dashed rgba(217,164,65,.36);background:rgba(217,164,65,.07);
+  border-radius:11px;padding:7px 11px;font-size:10.5px;line-height:1.5;color:var(--ink-2);
+  position:relative;z-index:3;text-align:center}
+.tv-anno b{color:var(--brass-300)}
+.tv-mytable{display:flex;gap:5px;justify-content:center;margin-bottom:2px}
+.mini-card.sm{width:40px;height:56px;font-size:13px;border-radius:7px;padding:4px}
+.tv-mid{flex:1;display:flex;align-items:center;justify-content:center;gap:26px;position:relative;z-index:3}
+.mini-card{width:56px;height:78px;border-radius:9px;background:linear-gradient(168deg,#fff,#fbfaf7 42%,#f0ece3);
+  border:1px solid #e6e0d6;color:var(--card-ink);padding:5px;font-weight:800;font-size:17px;
+  box-shadow:0 8px 20px -8px rgba(0,0,0,.75)}
+.mini-card.red{color:var(--card-red)}
+.mini-card.back{background:linear-gradient(150deg,#22405a,#16293a 48%,#101f2c);
+  border-color:rgba(217,164,65,.24);display:grid;place-items:center;padding:0;
+  color:rgba(217,164,65,.45);font-size:26px}
+.tv-lbl{font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);
+  text-align:center;margin-top:6px}
+.tv-you{position:relative;z-index:3;padding:0 12px calc(var(--sab) + 12px);display:flex;
+  flex-direction:column;align-items:center;gap:10px}
+.emotes{display:flex;gap:7px;justify-content:center}
+.emotes button{width:40px;height:40px;border-radius:13px;background:rgba(255,255,255,.07);
+  border:1px solid var(--line);display:grid;place-items:center;font-size:19px}
+.emotes button:active{transform:scale(.9)}
+.hand-row{display:flex;gap:5px;justify-content:center}
+.callout{position:absolute;z-index:9;background:rgba(11,15,20,.94);border:1px solid var(--brass-400);
+  color:var(--brass-300);border-radius:10px;padding:5px 10px;font-size:10.5px;font-weight:700;
+  white-space:nowrap;box-shadow:0 8px 22px -8px #000}
+
+/* ─── toast ──────────────────────────────────────────────────── */
+#toast{position:fixed;left:50%;bottom:calc(var(--sab) + 74px);transform:translateX(-50%);
+  z-index:95;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.tst{background:rgba(11,15,20,.94);border:1px solid var(--line);border-radius:999px;
+  padding:8px 16px;font-size:12.5px;font-weight:600;white-space:nowrap;
+  animation:tin .26s var(--ease);box-shadow:0 8px 24px -8px #000}
+.tst.good{border-color:var(--mint);color:var(--mint)}
+.tst.gold{border-color:var(--brass-400);color:var(--brass-300)}
+@keyframes tin{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+/* ─── ranglijst ──────────────────────────────────────────────── */
+.lb-row{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:14px;
+  background:rgba(255,255,255,.04);margin-bottom:7px;border:1px solid transparent}
+.lb-row.me{background:linear-gradient(90deg,rgba(217,164,65,.18),rgba(217,164,65,.04));
+  border-color:rgba(217,164,65,.36)}
+.lb-pos{width:20px;text-align:center;font-size:13px;font-weight:800;color:var(--ink-3);flex:none}
+.lb-rank{width:30px;height:38px;border-radius:6px;background:var(--card-face);color:var(--card-ink);
+  display:grid;place-items:center;font-weight:800;font-size:15px;flex:none;
+  box-shadow:0 3px 8px rgba(0,0,0,.4)}
+.lb-num{text-align:right;flex:none}
+.lb-num .p{font-weight:800;font-size:14.5px}
+.lb-num .w{font-size:10.5px;color:var(--ink-3)}
+.shame{background:linear-gradient(90deg,rgba(255,106,61,.14),transparent);
+  border:1px solid rgba(255,106,61,.26)}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.stat{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:14px;padding:13px}
+.stat .v{font-size:22px;font-weight:800;line-height:1}
+.stat .k{font-size:10.5px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;margin-top:5px}
+
+/* ─── annotatie-strook ───────────────────────────────────────── */
+.anno{border:1px dashed rgba(217,164,65,.4);background:rgba(217,164,65,.07);border-radius:13px;
+  padding:11px 13px;margin:14px 0 0;font-size:11.5px;line-height:1.55;color:var(--ink-2)}
+.anno b{color:var(--brass-300)}
+.anno code{font-size:10.5px;color:var(--brass-300);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<div id="app" hidden>
+  <header id="hdr">
+    <button class="avatar" id="hdrAv" aria-label="Profiel"></button>
+    <div class="who">
+      <div class="nm" id="hdrName">—</div>
+      <div class="id" id="hdrId">—</div>
+    </div>
+    <div class="rankchip" id="hdrRank"><span>B</span><small>892 p</small></div>
+  </header>
+
+  <main id="view"></main>
+
+  <nav id="tabs">
+    <button data-tab="solo"  aria-selected="true"><span class="ic">♠</span><span class="lb">Solo</span></button>
+    <button data-tab="trois" aria-selected="false"><span class="ic">♦</span><span class="lb">Trois</span></button>
+    <button data-tab="mates" aria-selected="false"><span class="ic">♥</span><span class="lb">Vrienden</span></button>
+    <button data-tab="rank"  aria-selected="false"><span class="ic">♣</span><span class="lb">Ranglijst</span></button>
+  </nav>
+</div>
+
+<!-- ══════════ S-01 WELKOM ══════════ -->
+<section id="onboard">
+  <h1 class="logo">TROIS</h1>
+  <p class="lead">3 in de hand · 3 open · 3 blind</p>
+  <div class="idcard">
+    <div id="obAv" class="avatar lg" style="margin:0 auto"></div>
+    <div class="nm" id="obName">—</div>
+    <div class="tid" id="obId">—</div>
+    <button class="roll" id="obRoll">🎲 Andere naam</button>
+    <button class="btn gold" id="obGo">SPEEL</button>
+    <p class="hint">Je hebt geen account nodig. Je naam kun je later wijzigen —
+      je <b>Trois-ID</b> blijft altijd hetzelfde.</p>
+  </div>
+</section>
+
+<div id="sheets"></div>
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   Klikbaar prototype met NEPDATA. Geen backend, geen engine.
+   Doel: de flows en schermen uit docs/11-schermen-en-flows.md laten voelen.
+   De echte speeltafel is de bestaande demo — die blijft ongewijzigd.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const el = (h) => { const d=document.createElement('div'); d.innerHTML=h.trim(); return d.firstElementChild; };
+const DEMO_URL = 'https://sicparvisventures.github.io/trois-demo/';
+
+/* ── naamgenerator (spiegelt gen_display_name() in 04-datamodel.sql) ──────── */
+const ADJ = ['Stille','Wilde','Kalme','Snelle','Blinde','Koele','Sluwe','Rode',
+             'Zwarte','Gouden','Late','Vroege','Bleke','Dolle','Gladde','Norse'];
+const NOUN = ['Aas','Boer','Vrouw','Heer','Tien','Negen','Acht','Zeven',
+              'Schoppen','Harten','Ruiten','Klaveren'];
+const ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';       // geen I O 0 1
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const genName = () => pick(ADJ) + ' ' + pick(NOUN);
+const genId   = () => Array.from({length:6},()=>pick(ALPHA.split(''))).join('');
+const fmtId   = id => id.slice(0,3) + '-' + id.slice(3);
+
+/* ── avatar: deterministisch uit de seed, net als avatar_seed in de db ───── */
+const PAL = [['#f0c46a','#a8762a'],['#57e0a8','#1f8f66'],['#8b6cff','#4a2fb0'],
+             ['#ff8a5c','#c8431c'],['#4aa3ff','#1d5fb0'],['#ff6fae','#ad2f68'],
+             ['#7de0e0','#1f8f8f'],['#c9d24a','#6f7616']];
+const SUIT = ['♠','♥','♦','♣'];
+function hash(s){ let h=2166136261; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);} return h>>>0; }
+function avatarHTML(seed, cls='', online){
+  const h = hash(seed), p = PAL[h % PAL.length], s = SUIT[(h >>> 3) % 4];
+  const dot = online === undefined ? '' : `<span class="dot${online?' on':''}"></span>`;
+  return `<span class="avatar ${cls}" style="background:linear-gradient(150deg,${p[0]},${p[1]});color:rgba(0,0,0,.62)">${s}${dot}</span>`;
+}
+
+/* ── rangen (spiegelt rank_for() in de database) ─────────────────────────── */
+const LADDER = [[1200,'A'],[850,'H'],[600,'V'],[420,'B'],[280,'9'],
+                [180,'8'],[110,'7'],[60,'6'],[25,'5'],[0,'4']];
+const rankOf = p => (LADDER.find(([t]) => p >= t) || [0,'4'])[1];
+const RANK_NAME = {A:'Aas',H:'Heer',V:'Vrouw',B:'Boer','9':'Negen','8':'Acht',
+                   '7':'Zeven','6':'Zes','5':'Vijf','4':'Vier'};
+const wt = (w,t) => (w / Math.max(t,1)).toFixed(1).replace('.',',');
+
+/* ── nepdata ─────────────────────────────────────────────────────────────── */
+let me = { name: genName(), troisId: genId(), seed: 'me-'+Math.random(),
+           points: 892, games: 96, wins: 37, trois: 21, streak: 3, best: 7, burned: 214 };
+
+const friends = [
+  { id:'f1', name:'Sara',        tid:'9P2LTX', seed:'sara',  online:true,  points:1412, wins:64, trois:20 },
+  { id:'f2', name:'Milan',       tid:'4KD7MN', seed:'milan', online:true,  points:640,  wins:22, trois:42 },
+  { id:'f3', name:'Fien',        tid:'QW83RB', seed:'fien',  online:true,  points:512,  wins:19, trois:15 },
+  { id:'f4', name:'Wilde Boer',  tid:'ZT52HC', seed:'wboer', online:false, points:288,  wins:11, trois:13 },
+  { id:'f5', name:'Koele Heer',  tid:'MN94PX', seed:'kheer', online:false, points:174,  wins:6,  trois:9  },
+  { id:'f6', name:'Gouden Tien', tid:'BR36KL', seed:'g10',   online:false, points:96,   wins:4,  trois:11 },
+  { id:'f7', name:'Bleke Vrouw', tid:'XH72YD', seed:'bvrouw',online:false, points:41,   wins:2,  trois:8  },
+];
+let requests = [
+  { id:'r1', name:'Snelle Ruiten', tid:'7YH2QK', seed:'sruit' },
+  { id:'r2', name:'Dolle Negen',   tid:'PL48ZM', seed:'d9'    },
+];
+let matches = [
+  { id:'m1', mine:true,  secs:38, opps:['f2','f3'], bots:0, note:'Milan, Fien' },
+  { id:'m2', mine:false, secs:0,  opps:['f1'], bots:2, note:'Sara is aan zet', who:'Sara' },
+];
+let invites = [ { id:'i1', from:'f1', players:4, note:'jij, Sara, Milan, 1 bot' } ];
+const F = id => friends.find(f => f.id === id);
+
+/* ── helpers ─────────────────────────────────────────────────────────────── */
+function toast(msg, kind){
+  const t = el(`<div class="tst${kind?' '+kind:''}">${msg}</div>`);
+  $('#toast').appendChild(t);
+  setTimeout(()=>{ t.style.opacity=0; setTimeout(()=>t.remove(),260); }, 1800);
+  try{ navigator.vibrate && navigator.vibrate(8); }catch(e){}
+}
+function sheet(html, onMount){
+  const s = el(`<div class="sheet"><div class="sheet-in"><div class="grip"></div>${html}</div></div>`);
+  s.addEventListener('click', e => { if (e.target === s) close(); });
+  const close = () => s.remove();
+  s.close = close;
+  $('#sheets').appendChild(s);
+  onMount && onMount(s, close);
+  return s;
+}
+function ringHTML(secs, total=45){
+  const r = 22, c = 2*Math.PI*r, off = c * (1 - secs/total);
+  return `<svg width="52" height="52" viewBox="0 0 52 52">
+    <circle class="bg" cx="26" cy="26" r="${r}"></circle>
+    <circle class="fg" cx="26" cy="26" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${off}"></circle></svg>`;
+}
+
+/* ══════════════════════ S-01 WELKOM ══════════════════════ */
+function paintOnboard(){
+  const av = $('#obAv'); paintAvatar(av, me.seed);
+  av.classList.remove('pop'); void av.offsetWidth; av.classList.add('pop');
+  $('#obName').textContent = me.name;
+  $('#obId').textContent = 'TROIS-ID ' + fmtId(me.troisId);
+}
+$('#obRoll').onclick = () => { me.name = genName(); me.seed = 'me-'+Math.random(); paintOnboard(); toast('Naam opnieuw gerold'); };
+$('#obGo').onclick   = () => { $('#onboard').hidden = true; $('#app').hidden = false; paintHeader(); go('solo'); };
+paintOnboard();
+
+/* ══════════════════════ S-02 SHELL ══════════════════════ */
+function paintAvatar(node, seed, online){
+  const h = hash(seed), p = PAL[h % PAL.length], s = SUIT[(h >>> 3) % 4];
+  node.style.background = `linear-gradient(150deg,${p[0]},${p[1]})`;
+  node.style.color = 'rgba(0,0,0,.62)';
+  node.innerHTML = s + (online === undefined ? '' : `<span class="dot${online?' on':''}"></span>`);
+}
+function paintHeader(){
+  paintAvatar($('#hdrAv'), me.seed);
+  $('#hdrAv').onclick = openProfile;
+  $('#hdrName').textContent = me.name;
+  $('#hdrId').textContent = 'TROIS-ID ' + fmtId(me.troisId);
+  const r = rankOf(me.points);
+  $('#hdrRank').innerHTML = `<span>${r}</span><small>${me.points} p</small>`;
+  $('#hdrRank').title = RANK_NAME[r];
+}
+function paintBadges(){
+  document.querySelectorAll('#tabs .badge').forEach(b => b.remove());
+  const turns = matches.filter(m => m.mine).length + invites.length;
+  const reqs  = requests.length;
+  const add = (tab, n) => { if(!n) return;
+    const btn = document.querySelector(`#tabs button[data-tab="${tab}"]`);
+    btn.appendChild(el(`<span class="badge">${n}</span>`)); };
+  add('trois', turns); add('mates', reqs);
+}
+let tab = 'solo';
+function go(t){
+  tab = t;
+  document.querySelectorAll('#tabs button').forEach(b =>
+    b.setAttribute('aria-selected', b.dataset.tab === t));
+  $('#view').scrollTop = 0;
+  ({ solo:renderSolo, trois:renderTrois, mates:renderMates, rank:renderRank })[t]();
+  paintBadges();
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => go(b.dataset.tab));
+
+/* ══════════════════════ S-10 SOLO ══════════════════════ */
+let soloCfg = { players:4, level:'normal' };
+function renderSolo(){
+  $('#view').innerHTML = `
+    <div class="sec">Oefenpotje</div>
+    <div class="card-box">
+      <div class="field"><label>Spelers</label>
+        <div class="seg" id="sPlayers">
+          ${[2,3,4].map(n=>`<button data-v="${n}" aria-pressed="${n===soloCfg.players}">${n}</button>`).join('')}
+        </div></div>
+      <div class="field" style="margin-bottom:4px"><label>Tegenstanders</label>
+        <div class="seg sm" id="sLevel">
+          ${[['easy','Makkelijk'],['normal','Normaal'],['hard','Moeilijk']]
+            .map(([v,l])=>`<button data-v="${v}" aria-pressed="${v===soloCfg.level}">${l}</button>`).join('')}
+        </div></div>
+    </div>
+    <button class="btn gold" id="sGo">SPEEL TEGEN DE COMPUTER</button>
+    <p class="note">Werkt <b>zonder internet</b>. Oefenpotjes tellen niet mee voor je punten
+      of de ranglijst — daarvoor speel je online tegen vrienden.</p>
+    <div class="sec">Liever tegen echte mensen?</div>
+    <button class="btn ghost" id="sOnline">♦ Speel met vrienden</button>
+    <div class="anno"><b>S-10 · wat er verandert.</b> De knop die in de demo
+      <code>Deel met vrienden</code> heet, wordt hier <code>Speel met vrienden</code> en
+      opent de online-flow. Delen blijft bestaan, maar verhuist naar je profiel — een
+      prominente knop hoort bij spelen, niet bij marketing.</div>`;
+  $('#sPlayers').onclick = e => { const b=e.target.closest('button'); if(!b) return;
+    soloCfg.players = +b.dataset.v; renderSolo(); };
+  $('#sLevel').onclick = e => { const b=e.target.closest('button'); if(!b) return;
+    soloCfg.level = b.dataset.v; renderSolo(); };
+  $('#sGo').onclick = () => { toast('Opent de bestaande demo…','gold'); window.open(DEMO_URL,'_blank'); };
+  $('#sOnline').onclick = () => go('trois');
+}
+
+/* ══════════════════════ S-20 TROIS (online) ══════════════════════ */
+function renderTrois(){
+  const mine = matches.filter(m => m.mine);
+  const wait = matches.filter(m => !m.mine);
+  const online = friends.filter(f => f.online);
+  const noFriends = friends.length === 0;
+
+  $('#view').innerHTML = `
+    <button class="btn gold" id="tNew">+  NIEUW POTJE</button>
+    ${noFriends ? `<div class="empty"><div class="big">♦</div>
+        <p>Nog geen vrienden om tegen te spelen.<br>Deel je Trois-ID en begin.</p>
+        <button class="btn ghost sm" id="tAdd">Vriend toevoegen</button></div>` : ''}
+
+    ${mine.length ? `<div class="sec">Jouw beurt</div>` + mine.map(m => `
+      <button class="card-box tap" data-match="${m.id}" style="width:100%">
+        <div class="row">
+          <div class="stack-av">${m.opps.map(o=>avatarHTML(F(o).seed,'sm')).join('')}</div>
+          <div class="grow"><div class="t1">${m.note}</div><div class="t2">Jij bent aan zet</div></div>
+          <div class="ring${m.secs<15?' low':''}">${ringHTML(m.secs)}
+            <span style="display:grid;place-items:center;width:44px;height:44px;font-weight:800;font-size:13px;color:${m.secs<15?'var(--ember)':'var(--mint)'}">0:${String(m.secs).padStart(2,'0')}</span>
+          </div>
+        </div></button>`).join('') : ''}
+
+    ${invites.length ? `<div class="sec">Uitnodigingen</div>` + invites.map(v => {
+      const f = F(v.from);
+      return `<div class="card-box"><div class="row">
+        ${avatarHTML(f.seed,'sm',true)}
+        <div class="grow"><div class="t1">${f.name} nodigt je uit</div>
+          <div class="t2">${v.players} spelers · ${v.note}</div></div>
+        <button class="icon-btn" data-decline="${v.id}">✕</button>
+        <button class="icon-btn" data-accept="${v.id}" style="background:rgba(87,224,168,.18);border-color:rgba(87,224,168,.45);color:var(--mint)">✓</button>
+      </div></div>`; }).join('') : ''}
+
+    ${wait.length ? `<div class="sec">Wachten op anderen</div>` + wait.map(m => `
+      <button class="card-box tap" data-match="${m.id}" style="width:100%"><div class="row">
+        <div class="stack-av">${m.opps.map(o=>avatarHTML(F(o).seed,'sm')).join('')}
+          ${m.bots?`<span class="avatar sm" style="background:#243642;color:var(--ink-3);font-size:13px">🤖</span>`:''}</div>
+        <div class="grow"><div class="t1">${m.who} is aan zet</div>
+          <div class="t2">${m.bots?m.bots+' bot'+(m.bots>1?'s':'')+' · ':''}tik om te kijken</div></div>
+        <span class="pill wait">wacht</span>
+      </div></button>`).join('') : ''}
+
+    ${online.length ? `<div class="sec">Online nu</div>
+      <div class="card-box"><div class="row" style="flex-wrap:wrap;gap:14px">
+      ${online.map(f => `<button data-invite="${f.id}" style="display:flex;flex-direction:column;align-items:center;gap:5px;width:62px">
+        ${avatarHTML(f.seed,'',true)}
+        <span class="t3" style="max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</span>
+      </button>`).join('')}</div></div>
+      <p class="note">Tik op een vriend om hem direct uit te nodigen. "Online" komt uit een
+        <b>hartslag elke 30 s</b>, niet uit Realtime Presence — simpeler en het schaalt.</p>` : ''}
+
+    <div class="anno"><b>S-20.</b> Volgorde van boven naar beneden = volgorde van urgentie:
+      jouw beurt, uitnodigingen, wachten, wie er online is. De aftellende timer is de
+      belangrijkste reden dat mensen terugkomen in een asynchroon potje.</div>`;
+
+  $('#tNew').onclick = () => openNewMatch();
+  if ($('#tAdd')) $('#tAdd').onclick = () => { go('mates'); openAddFriend(); };
+  $('#view').querySelectorAll('[data-match]').forEach(b =>
+    b.onclick = () => openTable(b.dataset.match));
+  $('#view').querySelectorAll('[data-accept]').forEach(b => b.onclick = () => {
+    invites = invites.filter(v => v.id !== b.dataset.accept);
+    matches.unshift({ id:'m3', mine:true, secs:45, opps:['f1','f2'], bots:1, note:'Sara, Milan' });
+    toast('Je zit aan tafel','good'); renderTrois();
+  });
+  $('#view').querySelectorAll('[data-decline]').forEach(b => b.onclick = () => {
+    invites = invites.filter(v => v.id !== b.dataset.decline); toast('Afgewezen'); renderTrois();
+  });
+  $('#view').querySelectorAll('[data-invite]').forEach(b =>
+    b.onclick = () => openNewMatch(b.dataset.invite));
+}
+
+/* ══════════════════════ S-21 NIEUW POTJE (3 stappen) ══════════════════════ */
+function openNewMatch(preselect){
+  let step = 1;
+  const pre = typeof preselect === 'string' && F(preselect) ? [preselect] : [];
+  const cfg = { players:4, chosen:new Set(pre), bots:true, botLevel:'normal',
+                sixSixSix:'burn', endOnFirstOut:false, turnSecs:45 };
+  const s = sheet('<div id="nmBody"></div>', (sh, close) => {
+    const body = sh.querySelector('#nmBody');
+    const draw = () => {
+      const seatsLeft = cfg.players - 1 - cfg.chosen.size;
+      body.innerHTML = `
+        <div class="steps">${[1,2,3].map(i=>`<i class="${i<=step?'on':''}"></i>`).join('')}</div>
+        ${step===1?`
+          <h2>Hoeveel spelers?</h2>
+          <p class="sub">Inclusief jezelf. Lege plekken vullen we aan met bots.</p>
+          <div class="seg" id="nmP">${[2,3,4].map(n=>
+            `<button data-v="${n}" aria-pressed="${n===cfg.players}">${n}</button>`).join('')}</div>
+          <button class="btn gold" style="margin-top:20px" id="nmNext">VERDER</button>`
+        :step===2?`
+          <h2>Wie speelt mee?</h2>
+          <p class="sub">Nog <b>${Math.max(seatsLeft,0)}</b> ${seatsLeft===1?'plek':'plekken'} vrij.</p>
+          ${friends.map(f=>`
+            <button class="pick${f.online?'':' off'}" data-f="${f.id}"
+                    aria-pressed="${cfg.chosen.has(f.id)}">
+              <span class="chk">✓</span>${avatarHTML(f.seed,'sm',f.online)}
+              <span class="grow"><span class="t1">${f.name}</span>
+                <span class="t2">${f.online?'online':'offline — krijgt een uitnodiging'}</span></span>
+            </button>`).join('')}
+          <button class="pick" data-bots aria-pressed="${cfg.bots}">
+            <span class="chk">✓</span>
+            <span class="avatar sm" style="background:#243642;color:var(--ink-3);font-size:14px">🤖</span>
+            <span class="grow"><span class="t1">Vul aan met bots</span>
+              <span class="t2">${seatsLeft>0?seatsLeft+' bot'+(seatsLeft>1?'s':''):'geen plek meer'} · ${cfg.botLevel}</span></span>
+          </button>
+          <p class="note">Offline vrienden kun je gewoon aanvinken. Het potje <b>begint meteen</b>
+            met een bot op hun plek; accepteren ze later, dan nemen ze die over. Wachten op
+            mensen is waar sociale games doodgaan.</p>
+          <button class="btn gold" style="margin-top:16px" id="nmNext">VERDER</button>`
+        :`
+          <h2>Huisregels</h2>
+          <p class="sub">Standaard staat alles goed. We onthouden je laatste keuze.</p>
+          <div class="field"><label>666 (drie zessen)</label>
+            <div class="seg sm" id="nm666">
+              <button data-v="burn"   aria-pressed="${cfg.sixSixSix==='burn'}">Burn</button>
+              <button data-v="pickup" aria-pressed="${cfg.sixSixSix==='pickup'}">Volgende pakt</button>
+            </div></div>
+          <div class="field"><label>Einde</label>
+            <div class="seg sm" id="nmEnd">
+              <button data-v="0" aria-pressed="${!cfg.endOnFirstOut}">Doorspelen</button>
+              <button data-v="1" aria-pressed="${cfg.endOnFirstOut}">Stopt bij de eerste</button>
+            </div></div>
+          <div class="field"><label>Bedenktijd per beurt</label>
+            <div class="seg sm" id="nmT">${[30,45,60].map(t=>
+              `<button data-v="${t}" aria-pressed="${t===cfg.turnSecs}">${t}s</button>`).join('')}</div></div>
+          <button class="btn mint" id="nmStart">START POTJE</button>`}
+      `;
+      if (step===1) body.querySelector('#nmP').onclick = e => {
+        const b=e.target.closest('button'); if(!b) return; cfg.players=+b.dataset.v;
+        while (cfg.chosen.size > cfg.players-1) cfg.chosen.delete([...cfg.chosen][cfg.chosen.size-1]);
+        draw(); };
+      if (step===2){
+        body.querySelectorAll('[data-f]').forEach(b => b.onclick = () => {
+          const id=b.dataset.f;
+          if (cfg.chosen.has(id)) cfg.chosen.delete(id);
+          else if (cfg.chosen.size < cfg.players-1) cfg.chosen.add(id);
+          else { toast('Alle plekken zijn bezet'); return; }
+          draw(); });
+        body.querySelector('[data-bots]').onclick = () => { cfg.bots=!cfg.bots; draw(); };
+      }
+      if (step===3){
+        body.querySelector('#nm666').onclick = e => { const b=e.target.closest('button'); if(b){cfg.sixSixSix=b.dataset.v;draw();} };
+        body.querySelector('#nmEnd').onclick = e => { const b=e.target.closest('button'); if(b){cfg.endOnFirstOut=b.dataset.v==='1';draw();} };
+        body.querySelector('#nmT').onclick   = e => { const b=e.target.closest('button'); if(b){cfg.turnSecs=+b.dataset.v;draw();} };
+        body.querySelector('#nmStart').onclick = () => { close(); openWaiting(cfg); };
+      }
+      const nx = body.querySelector('#nmNext');
+      if (nx) nx.onclick = () => { step++; draw(); };
+    };
+    draw();
+  });
+}
+
+/* ══════════════════════ S-22 WACHTKAMER ══════════════════════ */
+function openWaiting(cfg){
+  const chosen = [...cfg.chosen].map(F);
+  const botCount = Math.max(cfg.players - 1 - chosen.length, 0);
+  const state = new Map(chosen.map(f => [f.id, f.online ? 'joined' : 'pending']));
+  sheet('<div id="wBody"></div>', (sh, close) => {
+    const body = sh.querySelector('#wBody');
+    const draw = () => {
+      const waiting = [...state.values()].filter(v => v === 'pending').length;
+      body.innerHTML = `
+        <h2>Wachtkamer</h2>
+        <p class="sub">${waiting ? `Wachten op ${waiting} speler${waiting>1?'s':''}. Je kunt ook nu al beginnen.`
+                                 : 'Iedereen is er. Veel plezier.'}</p>
+        <div class="pick" aria-pressed="true">
+          <span class="chk">✓</span>${avatarHTML(me.seed,'sm',true)}
+          <span class="grow"><span class="t1">${me.name}</span><span class="t2">jij · host</span></span></div>
+        ${chosen.map(f => {
+          const st = state.get(f.id);
+          return `<div class="pick"${st==='joined'?' aria-pressed="true"':''}>
+            <span class="chk">${st==='joined'?'✓':''}</span>${avatarHTML(f.seed,'sm',f.online)}
+            <span class="grow"><span class="t1">${f.name}</span>
+              <span class="t2">${st==='joined'?'zit aan tafel':st==='declined'?'kan niet':'uitgenodigd — bot speelt zolang'}</span></span>
+            <span class="pill ${st==='joined'?'turn':'wait'}">${st==='joined'?'✓':st==='declined'?'✕':'⏳'}</span></div>`;
+        }).join('')}
+        ${Array.from({length:botCount}).map((_,i)=>`
+          <div class="pick" aria-pressed="true"><span class="chk">✓</span>
+            <span class="avatar sm" style="background:#243642;color:var(--ink-3);font-size:14px">🤖</span>
+            <span class="grow"><span class="t1">Bot ${i+1}</span><span class="t2">${cfg.botLevel}</span></span></div>`).join('')}
+        <button class="btn mint" style="margin-top:16px" id="wStart">
+          ${waiting ? 'START NU MET BOTS' : 'START'}</button>
+        <p class="note">Na 60 seconden zonder reactie start het potje automatisch.</p>`;
+      body.querySelector('#wStart').onclick = () => { close(); openTable('new'); };
+    };
+    draw();
+    // een van de uitgenodigden accepteert na even
+    const pend = [...state.entries()].find(([,v]) => v === 'pending');
+    if (pend) setTimeout(() => { if (!sh.isConnected) return;
+      state.set(pend[0], 'joined'); toast(F(pend[0]).name + ' doet mee','good'); draw(); }, 2600);
+  });
+}
+
+/* ══════════════════════ S-30 VRIENDEN ══════════════════════ */
+function renderMates(){
+  $('#view').innerHTML = `
+    <div class="card-box">
+      <div class="row"><div class="grow">
+        <div class="t3">Jouw Trois-ID</div>
+        <div class="t1" style="font-size:19px;letter-spacing:.18em;color:var(--brass-300);margin-top:3px">${fmtId(me.troisId)}</div>
+      </div>
+      <button class="icon-btn" id="mCopy">⧉</button>
+      <button class="icon-btn" id="mShare">↗</button></div>
+    </div>
+    <button class="btn ghost" id="mAdd">+  Vriend toevoegen met Trois-ID</button>
+
+    ${requests.length ? `<div class="sec">Verzoeken (${requests.length})</div>` + requests.map(r=>`
+      <div class="card-box"><div class="row">
+        ${avatarHTML(r.seed,'sm')}
+        <div class="grow"><div class="t1">${r.name}</div><div class="t2">${fmtId(r.tid)}</div></div>
+        <button class="icon-btn" data-rdec="${r.id}">✕</button>
+        <button class="icon-btn" data-racc="${r.id}" style="background:rgba(87,224,168,.18);border-color:rgba(87,224,168,.45);color:var(--mint)">✓</button>
+      </div></div>`).join('') : ''}
+
+    <div class="sec">Vrienden (${friends.length})</div>
+    ${friends.map(f=>`
+      <button class="card-box tap" data-friend="${f.id}" style="width:100%"><div class="row">
+        ${avatarHTML(f.seed,'',f.online)}
+        <div class="grow"><div class="t1">${f.name}</div>
+          <div class="t2">${RANK_NAME[rankOf(f.points)]} · W/T ${wt(f.wins,f.trois)}</div></div>
+        <span class="rankchip"><span>${rankOf(f.points)}</span></span>
+      </div></button>`).join('')}
+
+    <div class="anno"><b>S-30.</b> Er is bewust <b>geen zoekfunctie op naam</b>. Een endpoint
+      dat op naam zoekt, is een endpoint dat je hele gebruikersbestand uitleest. Met alleen
+      <code>find_profile_by_trois_id()</code> moet je het ID al hebben — en dat raden kost
+      887 miljoen pogingen bij 30 per uur.</div>`;
+
+  $('#mCopy').onclick = () => { navigator.clipboard?.writeText(me.troisId); toast('Trois-ID gekopieerd','good'); };
+  $('#mShare').onclick = () => {
+    const url = location.href.split('#')[0] + '#add/' + me.troisId;
+    if (navigator.share) navigator.share({ title:'Trois', text:`Voeg me toe: ${fmtId(me.troisId)}`, url }).catch(()=>{});
+    else { navigator.clipboard?.writeText(url); toast('Link gekopieerd','good'); }
+  };
+  $('#mAdd').onclick = openAddFriend;
+  $('#view').querySelectorAll('[data-racc]').forEach(b => b.onclick = () => {
+    const r = requests.find(x => x.id === b.dataset.racc);
+    friends.push({ id:r.id, name:r.name, tid:r.tid, seed:r.seed, online:false, points:0, wins:0, trois:0 });
+    requests = requests.filter(x => x.id !== r.id);
+    toast(r.name + ' is nu je vriend','good'); renderMates(); paintBadges();
+  });
+  $('#view').querySelectorAll('[data-rdec]').forEach(b => b.onclick = () => {
+    requests = requests.filter(x => x.id !== b.dataset.rdec);
+    toast('Verzoek verwijderd'); renderMates(); paintBadges();
+  });
+  $('#view').querySelectorAll('[data-friend]').forEach(b => b.onclick = () => {
+    const f = F(b.dataset.friend); openFriend(f);
+  });
+}
+
+function openAddFriend(){
+  sheet(`
+    <h2>Vriend toevoegen</h2>
+    <p class="sub">Vraag zijn Trois-ID, of laat hem jouw link openen.</p>
+    <input class="inp" id="afIn" maxlength="7" placeholder="bijv. 9P2-LTX" autocomplete="off">
+    <div id="afRes" style="margin-top:14px"></div>
+    <button class="btn ghost sm" style="margin-top:14px" id="afShare">Deel in plaats daarvan mijn link</button>
+    <p class="note">Hoofdletters en het streepje maken niet uit. Zit iemand naast je?
+      Dan werkt een QR-code sneller — die komt in de echte app.</p>`,
+  (sh, close) => {
+    const inp = sh.querySelector('#afIn'), res = sh.querySelector('#afRes');
+    inp.oninput = () => {
+      const code = inp.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+      if (code.length < 6){ res.innerHTML=''; return; }
+      const hit = friends.find(f => f.tid === code);
+      const known = !!hit;
+      const found = known ? hit : { name: genName(), tid: code, seed: code, points: 120 + (hash(code)%900) };
+      res.innerHTML = `<div class="card-box"><div class="row">
+          ${avatarHTML(found.seed,'')}
+          <div class="grow"><div class="t1">${found.name}</div>
+            <div class="t2">${fmtId(found.tid)} · ${RANK_NAME[rankOf(found.points)]}</div></div>
+        </div>
+        <button class="btn ${known?'ghost':'mint'} sm" style="margin-top:11px" id="afSend"
+          ${known?'disabled style="opacity:.5;margin-top:11px"':''}>
+          ${known?'Al je vriend':'Verzoek sturen'}</button></div>`;
+      if (!known) res.querySelector('#afSend').onclick = () => {
+        toast('Verzoek verstuurd naar ' + found.name,'good'); close(); };
+    };
+    sh.querySelector('#afShare').onclick = () => { close(); $('#mShare').click(); };
+    setTimeout(()=>inp.focus(), 320);
+  });
+}
+
+function openFriend(f){
+  sheet(`
+    <div style="text-align:center;padding-bottom:6px">
+      <div style="display:inline-block">${avatarHTML(f.seed,'lg',f.online)}</div>
+      <h2 style="margin-top:12px">${f.name}</h2>
+      <p class="sub">${fmtId(f.tid)} · ${RANK_NAME[rankOf(f.points)]} · ${f.online?'online':'offline'}</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="v">${f.points}</div><div class="k">Punten</div></div>
+      <div class="stat"><div class="v">${wt(f.wins,f.trois)}</div><div class="k">W/T</div></div>
+      <div class="stat"><div class="v">${f.wins}</div><div class="k">Gewonnen</div></div>
+      <div class="stat"><div class="v">${f.trois}</div><div class="k">× de Trois</div></div>
+    </div>
+    <button class="btn gold" style="margin-top:16px" id="fInv">Nodig uit voor een potje</button>
+    <button class="btn ghost sm" style="margin-top:9px" id="fRem">Verwijder als vriend</button>`,
+  (sh, close) => {
+    sh.querySelector('#fInv').onclick = () => { close(); go('trois'); openNewMatch(f.id); };
+    sh.querySelector('#fRem').onclick = () => { close(); toast('Verwijderd'); };
+  });
+}
+
+/* ══════════════════════ S-40 RANGLIJST ══════════════════════ */
+let lbScope = 'friends', lbPeriod = 'all';
+function renderRank(){
+  const all = [...friends.map(f=>({...f, me:false})),
+               { name:me.name, seed:me.seed, points:me.points, wins:me.wins, trois:me.trois, me:true }]
+              .sort((a,b) => b.points - a.points);
+  const shame = [...friends, { name:me.name, seed:me.seed, trois:me.trois, me:true }]
+              .sort((a,b) => b.trois - a.trois).slice(0,3);
+  $('#view').innerHTML = `
+    <div class="seg sm" id="lbScope" style="margin-bottom:9px">
+      <button data-v="friends" aria-pressed="${lbScope==='friends'}">Vrienden</button>
+      <button data-v="global"  aria-pressed="${lbScope==='global'}">Wereldwijd</button>
+    </div>
+    <div class="seg sm" id="lbPeriod" style="margin-bottom:16px">
+      ${[['all','Alle tijd'],['month','Deze maand'],['week','Deze week']].map(([v,l])=>
+        `<button data-v="${v}" aria-pressed="${lbPeriod===v}">${l}</button>`).join('')}
+    </div>
+    ${lbScope==='global' ? `
+      <div class="empty"><div class="big">♣</div>
+        <p>De wereldwijde ranglijst staat uit.<br>
+           Trois is grotendeels geluk: perfect spel wint maar <b>69,7%</b> van willekeurig
+           spel. Een globale lijst meet dus vooral wie het meest speelt.</p>
+        <button class="btn ghost sm" id="lbBack">Terug naar vrienden</button></div>
+      <div class="anno"><b>Waarom dit zo staat.</b> Uit 20.000 gesimuleerde potjes
+        (<code>docs/02-research.md §2.7</code>). Een globale lijst kan later alsnog, met een
+        minimum van 25 potjes en een reset per seizoen — maar eerst moet spelen met
+        vrienden goed voelen.</div>`
+    : all.map((p,i)=>`
+      <div class="lb-row${p.me?' me':''}">
+        <span class="lb-pos">${i+1}</span>
+        <span class="lb-rank">${rankOf(p.points)}</span>
+        ${avatarHTML(p.seed,'sm')}
+        <span class="grow"><span class="t1">${p.name}${p.me?' <span class="t3">· jij</span>':''}</span>
+          <span class="t2">${RANK_NAME[rankOf(p.points)]}</span></span>
+        <span class="lb-num"><span class="p">${p.points} p</span><br>
+          <span class="w">W/T ${wt(p.wins,p.trois)}</span></span>
+      </div>`).join('')
+      + `<div class="sec">De schandpaal</div>`
+      + shame.map(p=>`<div class="lb-row shame">
+          <span class="lb-pos">💀</span>${avatarHTML(p.seed,'sm')}
+          <span class="grow"><span class="t1">${p.name}${p.me?' <span class="t3">· jij</span>':''}</span></span>
+          <span class="lb-num"><span class="p">${p.trois}×</span><br><span class="w">de Trois</span></span>
+        </div>`).join('')
+      + `<div class="anno"><b>S-40.</b> Sorteren op <b>punten</b> (beloont spelen),
+          met <b>W/T</b> ernaast (beloont goed spelen). Zo voelt niemand zich bekocht:
+          wie weinig maar goed speelt, ziet dat in W/T; wie veel speelt, ziet zijn rang stijgen.
+          De schandpaal is even prominent als de top — bij een spel waarin de verliezer
+          <i>de Trois</i> heet, is dát het gespreksonderwerp.</div>`}`;
+  $('#lbScope').onclick = e => { const b=e.target.closest('button'); if(b){lbScope=b.dataset.v;renderRank();} };
+  $('#lbPeriod').onclick = e => { const b=e.target.closest('button'); if(b){lbPeriod=b.dataset.v;renderRank();} };
+  if ($('#lbBack')) $('#lbBack').onclick = () => { lbScope='friends'; renderRank(); };
+}
+
+/* ══════════════════════ S-50 PROFIEL ══════════════════════ */
+function openProfile(){
+  const r = rankOf(me.points);
+  const next = LADDER.slice().reverse().find(([t]) => t > me.points);
+  sheet(`
+    <div style="text-align:center">
+      <div style="display:inline-block">${avatarHTML(me.seed,'lg')}</div>
+      <h2 style="margin-top:12px">${me.name}</h2>
+      <p class="sub">TROIS-ID ${fmtId(me.troisId)} · ${RANK_NAME[r]}</p>
+      ${next?`<p class="note" style="margin-top:-8px">Nog <b>${next[0]-me.points} punten</b> tot ${RANK_NAME[next[1]]}</p>`:
+              `<p class="note" style="margin-top:-8px">Je staat op de hoogste rang.</p>`}
+    </div>
+    <div class="stat-grid" style="margin-top:16px">
+      <div class="stat"><div class="v">${me.games}</div><div class="k">Potjes</div></div>
+      <div class="stat"><div class="v">${me.wins}</div><div class="k">Gewonnen</div></div>
+      <div class="stat"><div class="v">${me.trois}</div><div class="k">× de Trois</div></div>
+      <div class="stat"><div class="v">${wt(me.wins,me.trois)}</div><div class="k">W/T</div></div>
+      <div class="stat"><div class="v">${me.best}</div><div class="k">Langste reeks</div></div>
+      <div class="stat"><div class="v">${me.burned}</div><div class="k">Verbrand</div></div>
+    </div>
+    <div class="sec">Account</div>
+    <div class="card-box"><div class="row">
+      <span style="font-size:19px">🔐</span>
+      <div class="grow"><div class="t1">Beveilig je account</div>
+        <div class="t2">Zonder koppeling ben je alles kwijt als je de app verwijdert.</div></div>
+    </div>
+    <button class="btn ghost sm" style="margin-top:11px" id="pLink">Koppel Apple of Google</button></div>
+    <button class="btn ghost sm" id="pName">Naam en avatar wijzigen</button>
+    <button class="btn ghost sm" style="margin-top:9px" id="pShare">Nodig een vriend uit voor Trois</button>
+    <div class="anno"><b>S-50.</b> De waarschuwing over je anonieme account staat er eerlijk,
+      maar verschijnt pas <b>ná je eerste gewonnen potje</b> — daarvóór heeft ze geen
+      betekenis voor de speler. Delen zit hier, niet op de startknop.</div>`,
+  (sh, close) => {
+    sh.querySelector('#pLink').onclick  = () => toast('In de echte app: linkIdentity()','gold');
+    sh.querySelector('#pName').onclick  = () => { me.name = genName(); me.seed = 'me-'+Math.random();
+      paintHeader(); close(); toast('Naam gewijzigd','good'); };
+    sh.querySelector('#pShare').onclick = () => { close(); go('mates'); setTimeout(()=>$('#mShare').click(),80); };
+  });
+}
+
+/* ══════════════════════ S-24 ONLINE TAFEL ══════════════════════ */
+function openTable(which){
+  // Drie tegenstanders die samen het verhaal vertellen: eentje normaal, eentje
+  // aan zet met een aftellende ring, en eentje die zijn verbinding kwijt is.
+  const seats = [
+    { f:F('f1'), cards:5, state:'ok'   },
+    { f:F('f2'), cards:3, state:'turn' },
+    { f:F('f3'), cards:2, state:'gone' },
+  ];
+  let secs = 27;
+
+  const mini = (v, suit, red) =>
+    `<div class="mini-card sm${red?' red':''}">${v}<div style="font-size:10px">${suit}</div></div>`;
+
+  const tv = el(`<div id="table-view">
+    <div class="tv-hd">
+      <button class="icon-btn" id="tvBack">‹</button>
+      <span style="flex:1;text-align:center;font-weight:800;letter-spacing:.2em;font-size:13px;color:var(--brass-300)">TROIS</span>
+      <button class="icon-btn" id="tvInfo">?</button>
+    </div>
+    <div class="tv-opps" id="tvOpps"></div>
+    <div class="tv-anno"><b>S-24 · nieuw t.o.v. solo:</b>
+      echte avatars · turn-timer rond wie aan zet is · verbindingsstatus · emotes.
+      De tafel zelf is ongewijzigd.</div>
+    <div class="tv-mid">
+      <div><div class="mini-card back">3</div><div class="tv-lbl">11</div></div>
+      <div><div class="mini-card red">9<div style="font-size:12px">♦</div></div><div class="tv-lbl">aflegstapel</div></div>
+      <div><div style="width:56px;height:78px;display:grid;place-items:center;font-size:22px;opacity:.4">🔥</div>
+           <div class="tv-lbl">8 verbrand</div></div>
+    </div>
+    <div class="tv-you">
+      <div class="tv-mytable">
+        <div class="mini-card back sm" style="font-size:16px">3</div>
+        ${mini('A','♠')}${mini('H','♥',1)}
+      </div>
+      <div class="emotes">${['👏','😂','😱','🔥','🤝','🫠'].map(e=>`<button data-e="${e}">${e}</button>`).join('')}</div>
+      <div class="hand-row">${mini('5','♠')}${mini('B','♥',1)}${mini('2','♣')}</div>
+      <div style="display:flex;gap:8px;width:100%;max-width:420px">
+        <button class="btn ghost sm" style="flex:1">PAK STAPEL</button>
+        <button class="btn mint sm" style="flex:1">SPEEL</button>
+      </div>
+    </div>
+  </div>`);
+  document.body.appendChild(tv);
+
+  const paint = () => {
+    tv.querySelector('#tvOpps').innerHTML = seats.map(s => {
+      const turn = s.state === 'turn', gone = s.state === 'gone';
+      return `<div class="tv-opp${gone?' gone':''}">
+        <div class="ring av${turn && secs < 15 ? ' low':''}">
+          ${turn ? `<svg width="52" height="52" viewBox="0 0 52 52">
+              <circle class="bg" cx="26" cy="26" r="23"></circle>
+              <circle class="fg" cx="26" cy="26" r="23"
+                      stroke-dasharray="${2*Math.PI*23}"
+                      stroke-dashoffset="${2*Math.PI*23*(1-secs/45)}"></circle></svg>` : ''}
+          ${avatarHTML(s.f.seed,'',!gone)}
+        </div>
+        <div class="nm">${s.f.name}</div>
+        <div class="cnt">${gone ? 'verbinding weg'
+                        : turn ? `<span style="color:${secs<15?'var(--ember)':'var(--mint)'};font-weight:800">0:${String(secs).padStart(2,'0')}</span>`
+                        : '✋ ' + s.cards}</div>
+      </div>`;
+    }).join('');
+  };
+  paint();
+  const iv = setInterval(() => { secs = secs > 0 ? secs - 1 : 45; paint(); }, 1000);
+
+  tv.querySelector('#tvBack').onclick = () => { clearInterval(iv); tv.remove(); };
+  tv.querySelector('#tvInfo').onclick = () =>
+    toast('Fien is weg — na 3 gemiste beurten neemt een bot het over','gold');
+  tv.querySelectorAll('[data-e]').forEach(b => b.onclick = () => toast(b.dataset.e + ' verstuurd'));
+}
+
+/* ══════════════════════ init ══════════════════════ */
+window.TROIS_APP = { get me(){ return me; }, friends, go };
+})();
+</script>
+</body>
+</html>
